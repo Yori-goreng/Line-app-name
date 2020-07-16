@@ -25,9 +25,7 @@ class LinebotController < ApplicationController
       when Line::Bot::Event::Message
         case event.type
         when Line::Bot::Event::MessageType::Text
-          # LINEから送られてきたメッセージが「アンケート」と一致するかチェック
           if event.message['text'].eql?('アンケート')
-            # private内のtemplateメソッドを呼び出します。
             client.reply_message(event['replyToken'], template)
           end
         end
@@ -48,9 +46,7 @@ class LinebotController < ApplicationController
           "actions": [
               {
                 "type": "message",
-                # Botから送られてきたメッセージに表示される文字列です。
                 "label": "楽しい",
-                # ボタンを押した時にBotに送られる文字列です。
                 "text": "楽しい"
               },
               {
@@ -62,9 +58,4 @@ class LinebotController < ApplicationController
       }
     }
   end
-
-  end
-
-
-
 end
