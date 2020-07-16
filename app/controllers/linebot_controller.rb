@@ -4,7 +4,7 @@ class LinebotController < ApplicationController
   protect_from_forgery :except => [:callback]
 
   def client
-    @client ||= Line::Bot::Client.new{ |config|
+    @client ||= Line::Bot::Client.new { |config|
       config.channel_secret = ENV["LINE_CHANNEL_SECRET"]
       config.channel_token = ENV["LINE_CHANNEL_TOKEN"]
     }
@@ -14,7 +14,7 @@ class LinebotController < ApplicationController
     body = request.body.read
 
     signature = request.env['HTTP_X_LINE_SIGNATURE']
-    unless client.validate_signature[body, signature]
+    unless client.validate_signature(body, signature)
       head :bad_request
     end
 
@@ -25,12 +25,15 @@ class LinebotController < ApplicationController
       when Line::Bot::Event::Message
         case event.type
         when Line::Bot::Event::MessageType::Text
+          # LINEから送られてきたメッセージが「アンケート」と一致するかチェック
           if event.message['text'].eql?('アンケート')
+            # private内のtemplateメソッドを呼び出します。
             client.reply_message(event['replyToken'], template)
           end
         end
       end
     }
+
     head :ok
   end
 
@@ -46,7 +49,9 @@ class LinebotController < ApplicationController
           "actions": [
               {
                 "type": "message",
+                # Botから送られてきたメッセージに表示される文字列です。
                 "label": "楽しい",
+                # ボタンを押した時にBotに送られる文字列です。
                 "text": "楽しい"
               },
               {
